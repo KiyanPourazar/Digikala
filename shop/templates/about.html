@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Header -->
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">درباره ما</h1>
+            <p class="lead fw-normal text-white-50 mb-0">با دیجی‌کالا بیشتر آشنا شوید</p>
+        </div>
+    </div>
+</header>
+
+<!-- About Section -->
+<section class="py-5">
+    <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 align-items-center">
+            <div class="col-md-6">
+<!--                <img class="img-fluid rounded mb-4 mb-lg-0 shadow" src="{% static 'assets/about.jpg' %}" alt="About Image">-->
+                <h1 class="display-4 fw-bolder">دیجی‌کالا</h1>
+            </div>
+            <div class="col-md-6">
+                <h2 class="fw-bolder mb-3">داستان ما</h2>
+                <p class="lead">
+                    دیجی‌کالا با هدف ایجاد بستری امن، سریع و مطمئن برای خرید اینترنتی در ایران تأسیس شد.
+                    ما با گردآوری بهترین محصولات از برندهای معتبر، تجربه‌ای لذت‌بخش از خرید آنلاین را برای کاربران خود فراهم کرده‌ایم.
+                </p>
+                <p>
+                    تیم ما همواره در تلاش است تا با استفاده از فناوری‌های نوین، خدمات بهتر و قیمت‌های رقابتی ارائه دهد.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section class="py-5 bg-light">
+    <div class="container px-4 px-lg-5 text-center">
+        <h2 class="fw-bolder mb-4">اهداف ما</h2>
+        <div class="row gx-5 gy-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="bi bi-truck display-5 text-primary mb-3"></i>
+                        <h5 class="card-title">ارسال سریع</h5>
+                        <p class="card-text">تحویل سریع و دقیق محصولات در سراسر کشور با سیستم ارسال هوشمند.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="bi bi-shield-check display-5 text-success mb-3"></i>
+                        <h5 class="card-title">اعتماد و اطمینان</h5>
+                        <p class="card-text">تضمین اصالت کالا و بازگشت وجه در صورت نارضایتی مشتری.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="bi bi-heart display-5 text-danger mb-3"></i>
+                        <h5 class="card-title">رضایت مشتری</h5>
+                        <p class="card-text">اولویت ما رضایت مشتریان و بهبود مستمر تجربه خرید آن‌هاست.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section class="py-5">
+    <div class="container text-center">
+        <h2 class="fw-bolder mb-4">ارتباط با ما</h2>
+        <p class="lead mb-4">اگر پرسشی دارید یا نیاز به پشتیبانی دارید، خوشحال می‌شویم با ما در تماس باشید.</p>
+        <a class="btn btn-outline-dark btn-lg" href="mailto:info@digikala.com">ارسال ایمیل</a>
+    </div>
+</section>
+{% endblock %}
