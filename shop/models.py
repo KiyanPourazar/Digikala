@@ -1,6 +1,6 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
-# Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=50)
 
@@ -29,6 +29,19 @@ class Product(models.Model):
     price = models.FloatField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     picture = models.ImageField(upload_to='upload/product/')
+
+    is_sale = models.BooleanField(default=False)
+    sale_price = models.FloatField()
+
+    STAR_CHOICES = (
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '5'),
+    )
+
+    star = models.IntegerField(default=0, choices=STAR_CHOICES)
 
     SIZE_CHOICES = (
         ('None','None'),
