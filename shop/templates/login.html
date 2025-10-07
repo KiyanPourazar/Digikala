@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Header -->
+<header class="bg-dark py-5">
+  <div class="container px-4 px-lg-5 my-5">
+    <div class="text-center text-white">
+      <h1 class="display-4 fw-bolder">وارد شوید</h1>
+      <p class="lead fw-normal text-white-50 mb-0">ورود به حساب کاربری شما</p>
+    </div>
+  </div>
+</header>
+
+<!-- Login Section -->
+<section class="py-5">
+  <div class="container px-4 px-lg-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+        <div class="card shadow border-0">
+          <div class="card-body p-5">
+            <h4 class="text-center mb-4 fw-bold">ورود به حساب</h4>
+
+            <form method="POST" action="{% url 'login' %}">
+              {% csrf_token %}
+
+              {% if form.errors %}
+              <div class="alert alert-danger text-center">
+                نام کاربری، ایمیل یا رمز عبور اشتباه است.
+              </div>
+              {% endif %}
+
+              <!-- Username or Email -->
+              <div class="mb-3">
+                <label for="login_field" class="form-label text-end w-100">نام کاربری یا ایمیل</label>
+                <input
+                  type="text"
+                  name="login_field"
+                  id="login_field"
+                  class="form-control text-start"
+                  style="direction: ltr;"
+                  placeholder="username یا email"
+                  required
+                />
+              </div>
+
+              <!-- Password -->
+              <div class="mb-3">
+                <label for="password" class="form-label text-end w-100">رمز عبور</label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  class="form-control text-start"
+                  style="direction: ltr;"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <div class="mb-3 form-check text-start">
+                <input type="checkbox" class="form-check-input" id="remember" />
+                <label class="form-check-label" for="remember">من ربات نیستم</label>
+              </div>
+
+              <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-dark btn-lg">ورود</button>
+              </div>
+
+              <div class="text-center">
+                <small>حساب کاربری ندارید؟</small>
+                <a href="{% url 'register' %}" class="text-decoration-none text-primary">
+                  ثبت‌نام کنید
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
