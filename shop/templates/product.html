@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<!-- Header -->
+<header class="bg-dark py-5">
+  <div class="container px-4 px-lg-5 my-5">
+    <div class="text-center text-white">
+      <h1 class="display-4 fw-bolder">{{ product.name }}</h1>
+      <p class="lead fw-normal text-white-50 mb-0">{{ product.category }}</p>
+    </div>
+  </div>
+</header>
+
+<!-- Product Detail -->
+<section class="py-5">
+  <div class="container px-4 px-lg-5 my-5">
+    <div class="row gx-4 gx-lg-5 align-items-center">
+      <div class="col-md-6">
+        <img class="card-img-top mb-5 mb-md-0 rounded shadow" src="{{ product.picture.url }}" alt="{{ product.name }}" />
+      </div>
+      <div class="col-md-6">
+        <h2 class="fw-bolder">{{ product.name }}</h2>
+        <div class="d-flex justify-content-start small text-warning mb-3">
+          {% with ''|center:product.star as range %}
+            {% for _ in range %}
+              <div class="bi-star-fill"></div>
+            {% endfor %}
+          {% endwith %}
+        </div>
+
+        {% if product.is_sale %}
+          <span class="text-muted text-decoration-line-through">{{ product.price|intcomma }} تومان</span>
+          <h4 class="text-danger mt-2">{{ product.sale_price|intcomma }} تومان</h4>
+          <span class="badge bg-danger">فروش ویژه</span>
+        {% else %}
+          <h4 class="text-primary">{{ product.price|intcomma }} تومان</h4>
+        {% endif %}
+
+        <p class="lead mt-4">{{ product.description }}</p>
+
+        <div class="mb-3">
+          <strong>سایز:</strong> {{ product.size }}
+        </div>
+
+        <div class="mt-4">
+          <a href="#" class="btn btn-outline-dark">
+            <i class="bi bi-cart-plus"></i>
+            افزودن به سبد خرید
+          </a>
+          <a href="{% url 'shop' %}" class="btn btn-secondary ms-2">
+            بازگشت
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

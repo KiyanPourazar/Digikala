@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 
-def products_view(request):
+def shop_view(request):
     all_products = Product.objects.all()
     return render(request, 'index.html', {"all_products": all_products})
 
@@ -21,7 +21,7 @@ def login_user(request):
         if user is not None:
             login(request, user)
             messages.success(request, 'با موفقیت وارد شدید!')
-            return redirect('products')
+            return redirect('shop')
         else:
             messages.error(request, 'نام کاربری یا رمز عبور اشتباه است!')
             return redirect('login')
@@ -32,7 +32,7 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.success(request, 'با موفقیت خارج شدید!')
-    return redirect('products')
+    return redirect('shop')
 
 def register_user(request):
     if request.method == "POST":
@@ -62,6 +62,10 @@ def register_user(request):
 
         login(request, user)
         messages.success(request, "ثبت‌نام با موفقیت انجام شد! خوش آمدید 🎉")
-        return redirect("products")
+        return redirect("shop")
 
     return render(request, "register.html")
+
+def product_view(request, pk):
+    product = Product.objects.get(pk=pk)
+    return render(request, 'product.html', {"product": product})
