@@ -1,4 +1,4 @@
-from .models import Product
+from .models import Product, Category
 from django.contrib.auth import authenticate, login , logout
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -69,3 +69,13 @@ def register_user(request):
 def product_view(request, pk):
     product = Product.objects.get(pk=pk)
     return render(request, 'product.html', {"product": product})
+
+def category_view(request, cat):
+    cat = cat.replace("-", " ")
+    try:
+        category = Category.objects.get(name=cat)
+        products = Product.objects.filter(category=category)
+        return render(request, 'category.html', {"all_products": products, "category": category})
+    except Category.DoesNotExist:
+        messages.success(request, ('دسته‌بندی وجود ندارد!'))
+        return redirect("shop")
