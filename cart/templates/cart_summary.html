@@ -3,14 +3,139 @@
 {% load humanize %}
 
 {% block content %}
-<!-- Header-->
+<!-- Header -->
 <header class="bg-dark py-5">
-    <div class="container px-4 px-lg-5 my-5">
-        <div class="text-center text-white">
-            <h1 class="display-4 fw-bolder">سبد خرید</h1>
-            <p class="lead fw-normal text-white-50 mb-0">خرید در لحظه</p>
-        </div>
+  <div class="container px-4 px-lg-5 my-5">
+    <div class="text-center text-white">
+      <h1 class="display-4 fw-bolder">سبد خرید</h1>
+      <p class="lead fw-normal text-white-50 mb-0">مدیریت خریدهای شما</p>
     </div>
+  </div>
 </header>
-<br>
+
+<!-- Cart Section -->
+<section class="py-5">
+  <div class="container px-4 px-lg-5">
+
+    {% if cart_products %}
+      <div class="table-responsive">
+        <table class="table table-hover text-center align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>تصویر</th>
+              <th>نام محصول</th>
+              <th>قیمت واحد</th>
+              <th>تعداد</th>
+              <th>جمع جزء</th>
+              <th>حذف</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in cart_products %}
+            <tr id="product-row-{{ product.id }}">
+              <td style="width:100px;">
+                {% if product.picture %}
+                  <img src="{{ product.picture.url }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-height:80px;">
+                {% else %}
+                  <img src="{% static 'img/no-image.png' %}" alt="بدون تصویر" class="img-fluid rounded" style="max-height:80px;">
+                {% endif %}
+              </td>
+
+              <td class="fw-bold">{{ product.name }}</td>
+              <td>{{ product.price|intcomma }} تومان</td>
+              <td style="width:100px;">
+                <input type="number" min="1" class="form-control text-center quantity-input"
+                       data-product="{{ product.id }}"
+                       value="{{ product.quantity }}">
+              </td>
+              <td class="product-total" id="total-{{ product.id }}">{{ product.total|intcomma }} تومان</td>
+              <td>
+                <button class="btn btn-sm btn-outline-danger remove-from-cart" data-product="{{ product.id }}">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="text-end mt-4">
+        <h4>جمع کل: <strong id="cart-total">{{ total_price|intcomma }} تومان</strong></h4>
+        <a href="{% url 'shop' %}" class="btn btn-outline-secondary mt-3">ادامه خرید</a>
+        <a href="#" class="btn btn-success mt-3 ms-2">تسویه حساب</a>
+      </div>
+
+    {% else %}
+      <div class="text-center py-5">
+        <h4 class="text-muted">سبد خرید شما خالی است 🛒</h4>
+        <a href="{% url 'shop' %}" class="btn btn-outline-dark mt-3">بازگشت به فروشگاه</a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<!-- AJAX حذف و ویرایش -->
+<script>
+  $(document).ready(function(){
+
+    // 🗑 حذف محصول از سبد خرید
+    $(document).on('click', '.remove-from-cart', function(e) {
+      e.preventDefault();
+      const productId = $(this).data('product');
+
+      $.ajax({
+        type: 'POST',
+        url: "{% url 'cart_remove' %}",
+        data: {
+          product_id: productId,
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          action: 'post'
+        },
+        success: function(json) {
+          // حذف سطر از جدول
+          $("#product-row-" + productId).remove();
+          // بروزرسانی جمع کل
+          $("#cart-total").text(json.total_price.toLocaleString() + ' تومان');
+
+          // اگر سبد خالی شد:
+          if (json.total_price === 0) {
+            location.reload();
+          }
+        },
+        error: function(xhr, errmsg, err) {
+          console.log('Error:', errmsg);
+        }
+      });
+    });
+
+    // 🔄 تغییر تعداد محصول
+    $(document).on('change', '.quantity-input', function(e) {
+      const productId = $(this).data('product');
+      const quantity = $(this).val();
+
+      $.ajax({
+        type: 'POST',
+        url: "{% url 'cart_update' %}",
+        data: {
+          product_id: productId,
+          quantity: quantity,
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          action: 'post'
+        },
+        success: function(json) {
+          // بروزرسانی جمع جزء و کل
+          $("#total-" + productId).text(json.item_total.toLocaleString() + ' تومان');
+          $("#cart-total").text(json.total_price.toLocaleString() + ' تومان');
+        },
+        error: function(xhr, errmsg, err) {
+          console.log('Error:', errmsg);
+        }
+      });
+    });
+
+  });
+</script>
+
 {% endblock %}

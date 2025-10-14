@@ -45,16 +45,42 @@
         </div>
 
         <div class="mt-4">
-          <a href="#" class="btn btn-outline-dark">
-            <i class="bi bi-cart-plus"></i>
-            افزودن به سبد خرید
-          </a>
-          <a href="{% url 'shop' %}" class="btn btn-secondary ms-2">
+                <button class="btn btn-outline-dark add-to-cart" value="{{ product.id }}">
+                  افزودن به سبد خرید
+                </button>
+            <a href="{% url 'shop' %}" class="btn btn-secondary ms-2">
             بازگشت
           </a>
         </div>
       </div>
     </div>
   </div>
+        <script>
+        $(document).on('click', '.add-to-cart', function(e) {
+          e.preventDefault();
+
+          let productId = $(this).val();  // گرفتن ID از همین دکمه
+
+          $.ajax({
+            type: "POST",
+            url: "{% url 'cart_add' %}",
+            data: {
+              product_id: productId,
+              csrfmiddlewaretoken: '{{ csrf_token }}',
+              action: 'post'
+            },
+            success: function(json) {
+              console.log("✅ Product added:", json);
+              // 🔹 عدد بالای سبد خرید رو بلافاصله آپدیت کن
+              $('#cart-count').text(json.cart_size);
+            },
+            error: function(xhr, errmsg, err) {
+              console.log("❌ Error:", errmsg);
+            }
+          });
+        });
+        </script>
+
+
 </section>
 {% endblock %}
