@@ -42,6 +42,9 @@
 
         <div class="mb-3">
           <strong>سایز:</strong> {{ product.size }}
+            <br>
+            <p class="text-muted">موجودی: {{ product.stock }} عدد</p>
+
         </div>
 
         <div class="mt-4">
@@ -55,32 +58,69 @@
       </div>
     </div>
   </div>
-        <script>
-        $(document).on('click', '.add-to-cart', function(e) {
-          e.preventDefault();
+  <script>
+$(document).on('click', '.add-to-cart', function(e) {
 
-          let productId = $(this).val();  // گرفتن ID از همین دکمه
+ $('#add-to-cart-form').on('submit', function(e) {
+        e.preventDefault(); // جلوگیری از ارسال عادی فرم
 
-          $.ajax({
-            type: "POST",
+        const formData = $(this).serialize(); // جمع‌آوری داده‌های فرم
+
+        $.ajax({
+            type: 'POST',
             url: "{% url 'cart_add' %}",
-            data: {
-              product_id: productId,
-              csrfmiddlewaretoken: '{{ csrf_token }}',
-              action: 'post'
-            },
+            data: formData + '&action=post', // action=post را هم اضافه می‌کنیم
             success: function(json) {
-              console.log("✅ Product added:", json);
-              // 🔹 عدد بالای سبد خرید رو بلافاصله آپدیت کن
-              $('#cart-count').text(json.cart_size);
+                // به‌روزرسانی تعداد آیتم‌های سبد خرید در نوبار
+                $('#cart-count').text(json.cart_size);
+                alert('محصول با موفقیت به سبد خرید اضافه شد!');
             },
             error: function(xhr, errmsg, err) {
-              console.log("❌ Error:", errmsg);
+                if (xhr.status === 400 && xhr.responseJSON.error) {
+                    alert(xhr.responseJSON.error); // نمایش پیام خطای موجودی
+                } else {
+                    alert('خطایی رخ داد. لطفا دوباره تلاش کنید.');
+                    console.log('Error:', errmsg);
+                }
             }
-          });
         });
-        </script>
+    });
+  e.preventDefault();
 
+  let productId = $(this).val();  // گرفتن ID از همین دکمه
+
+  $.ajax({
+    type: "POST",
+    url: "{% url 'cart_add' %}",
+    data: {
+      product_id: productId,
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+      action: 'post'
+    },
+    success: function(json) {
+      console.log("✅ Product added:", json);
+      // 🔹 عدد بالای سبد خرید رو بلافاصله آپدیت کن
+      $('#cart-count').text(json.total_items);
+      // 🔹 نوتیفیکیشن ساده
+      const toast = $(`<div class="alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-3" role="alert" style="z-index: 9999;">
+        محصول به سبد خرید اضافه شد.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>`);
+      $('body').append(toast);
+      setTimeout(() => toast.alert('close'), 2500);
+    },
+    error: function(xhr, errmsg, err) {
+      if (xhr.status === 400 && xhr.responseJSON?.message === 'exceeds_stock') {
+        alert('تعداد انتخابی بیشتر از موجودی انبار است. حداکثر موجودی: ' + xhr.responseJSON.stock);
+      } else if (xhr.status === 400 && xhr.responseJSON?.message === 'unavailable') {
+        alert('این محصول در حال حاضر ناموجود است.');
+      } else {
+        console.log('Error:', errmsg);
+      }
+    }
+  });
+});
+</script>
 
 </section>
 {% endblock %}

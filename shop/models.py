@@ -30,6 +30,8 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     picture = models.ImageField(upload_to='upload/product/')
 
+    stock = models.PositiveIntegerField(default=0)
+
     is_sale = models.BooleanField(default=False)
     sale_price = models.FloatField()
 

@@ -35,20 +35,40 @@
             <tr id="product-row-{{ product.id }}">
               <td style="width:100px;">
                 {% if product.picture %}
+                  <a href="{% url 'product' product.id %}" class="text-decoration-none">
                   <img src="{{ product.picture.url }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-height:80px;">
+                  </a>
                 {% else %}
                   <img src="{% static 'img/no-image.png' %}" alt="بدون تصویر" class="img-fluid rounded" style="max-height:80px;">
                 {% endif %}
               </td>
 
-              <td class="fw-bold">{{ product.name }}</td>
-              <td>{{ product.price|intcomma }} تومان</td>
+              <td class="fw-bold">
+                  <a href="{% url 'product' product.id %}" class="text-dark text-decoration-none">
+                    {{ product.name }}
+                  </a>
+              </td>
+
+              <td>
+<!--                {% if product.is_sale %}-->
+<!--                  <span class="text-muted text-decoration-line-through">{{ product.original_price|intcomma }} تومان</span>-->
+<!--                  <h5 class="text-danger mt-1">{{ product.sale_price|intcomma }} تومان</h5>-->
+<!--                {% else %}-->
+<!--                  <h5 class="text-primary">{{ product.price|intcomma }} تومان</h5>-->
+<!--                {% endif %}-->
+              {{ product.price|intcomma }} تومان
+
+              </td>
+
               <td style="width:100px;">
-                <input type="number" min="1" class="form-control text-center quantity-input"
+                <input type="number" min="1" max="{{ product.stock }}"
+                       class="form-control text-center quantity-input"
                        data-product="{{ product.id }}"
                        value="{{ product.quantity }}">
               </td>
+
               <td class="product-total" id="total-{{ product.id }}">{{ product.total|intcomma }} تومان</td>
+
               <td>
                 <button class="btn btn-sm btn-outline-danger remove-from-cart" data-product="{{ product.id }}">
                   <i class="bi bi-trash"></i>
@@ -78,9 +98,9 @@
 
 <!-- AJAX حذف و ویرایش -->
 <script>
-  $(document).ready(function(){
+$(document).ready(function(){
 
-    // 🗑 حذف محصول از سبد خرید
+    // 🗑️ حذف محصول از سبد خرید (این بخش بدون تغییر و درست است)
     $(document).on('click', '.remove-from-cart', function(e) {
       e.preventDefault();
       const productId = $(this).data('product');
@@ -94,30 +114,42 @@
           action: 'post'
         },
         success: function(json) {
-          // حذف سطر از جدول
-          $("#product-row-" + productId).remove();
-          // بروزرسانی جمع کل
+          // آپدیت مقادیر در صفحه
+          $("#product-row-" + productId).fadeOut(300, function() { $(this).remove(); });
           $("#cart-total").text(json.total_price.toLocaleString() + ' تومان');
+          $('#cart-count').text(json.total_items);
 
-          // اگر سبد خالی شد:
-          if (json.total_price === 0) {
-            location.reload();
+          // اگر سبد خالی شد، صفحه را رفرش کن تا پیام "سبد خالی است" نمایش داده شود
+          if (json.total_items === 0) {
+              location.reload();
           }
         },
         error: function(xhr, errmsg, err) {
-          console.log('Error:', errmsg);
+          console.log('خطا در حذف محصول:', errmsg);
+          alert('خطایی در حذف محصول رخ داد.');
         }
       });
     });
 
-    // 🔄 تغییر تعداد محصول
+
+    // 🔄 تغییر تعداد محصول (منطق اصلاح شده و امن)
+
+    let previous_quantity; // متغیری برای نگهداری مقدار معتبر قبلی
+
+    // مرحله ۱: وقتی کاربر روی فیلد کلیک می‌کند، مقدار فعلی آن را ذخیره می‌کنیم
+    $(document).on('focus', '.quantity-input', function() {
+        previous_quantity = $(this).val();
+    });
+
+    // مرحله ۲: وقتی کاربر مقدار را تغییر داد، درخواست را به سرور می‌فرستیم
     $(document).on('change', '.quantity-input', function(e) {
       const productId = $(this).data('product');
       const quantity = $(this).val();
+      const inputElement = $(this); // خودِ فیلد input را نگه می‌داریم
 
       $.ajax({
         type: 'POST',
-        url: "{% url 'cart_update' %}",
+        url: "{% url 'cart_update' %}", // این view باید خطای موجودی را برگرداند
         data: {
           product_id: productId,
           quantity: quantity,
@@ -125,17 +157,29 @@
           action: 'post'
         },
         success: function(json) {
-          // بروزرسانی جمع جزء و کل
+          // اگر درخواست موفق بود، همه چیز را آپدیت کن
+          $('#cart-count').text(json.total_items);
           $("#total-" + productId).text(json.item_total.toLocaleString() + ' تومان');
           $("#cart-total").text(json.total_price.toLocaleString() + ' تومان');
         },
         error: function(xhr, errmsg, err) {
-          console.log('Error:', errmsg);
+          // مرحله ۳: اگر سرور خطا برگرداند (مثلا status 400)
+          if (xhr.status === 400 && xhr.responseJSON.error) {
+              // پیام خطایی که از view فرستادیم را نمایش بده
+              alert(xhr.responseJSON.error);
+              // و مقدار فیلد را به عدد معتبر قبلی برگردان
+              inputElement.val(previous_quantity);
+          } else {
+              console.log('خطا در بروزرسانی:', errmsg);
+              alert('خطایی در بروزرسانی سبد خرید رخ داد.');
+              // در صورت بروز خطای دیگر هم مقدار را برمی‌گردانیم
+              inputElement.val(previous_quantity);
+          }
         }
       });
     });
 
-  });
+});
 </script>
 
 {% endblock %}
